@@ -515,3 +515,81 @@
 @media (max-width: 900px) {
     .filters-bar input[type="text"], .filters-bar select { min-width: 120px; }
 }
+.modal-body .info-group p,
+.modal-body .info-group strong,
+.modal-body .item-details strong,
+.modal-body .item-details span {
+    background-color: transparent !important; /* Xóa nền xanh bị lỗi */
+    color: #333 !important; /* Chữ màu đen xám dễ đọc */
+    box-shadow: none !important;
+    text-shadow: none !important;
+}
+
+/* 2. Chỉnh lại khoảng cách dòng bên trái (Thông tin giao hàng) cho thoáng */
+.info-group p {
+    margin-bottom: 12px;
+    font-size: 1rem;
+    line-height: 1.5;
+    border-bottom: 1px dashed #eee; /* Thêm gạch chân mờ để phân cách dòng */
+    padding-bottom: 8px;
+}
+.info-group p:last-child {
+    border-bottom: none;
+}
+.info-group strong {
+    color: #2c3e50 !important; /* Màu tiêu đề đậm hơn chút */
+    margin-right: 5px;
+    display: inline-block;
+    min-width: 90px; /* Canh thẳng hàng các tiêu đề */
+}
+
+/* 3. Trang trí lại Badge số lượng (1x) và Size (L/M) */
+.item-name-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+/* Badge số lượng (VD: 1x) */
+.qty-tag {
+    background-color: #e74c3c !important; /* Nền đỏ cam nổi bật */
+    color: #fff !important;
+    font-size: 0.8rem !important;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 4px;
+    min-width: 24px;
+    text-align: center;
+}
+
+/* Badge Size (VD: L, M) */
+.size-tag {
+    background-color: #3498db !important; /* Nền xanh dương nhạt */
+    color: #fff !important;
+    font-size: 0.75rem !important;
+    padding: 2px 6px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+/* Tên món ăn */
+.item-details strong {
+    font-size: 1.1rem;
+    color: #2c3e50 !important;
+}
+
+/* Phần option (đá, đường) */
+.item-options {
+    background-color: #f8f9fa !important; /* Nền xám rất nhạt cho box option */
+    color: #555 !important;
+    border: 1px solid #eee;
+}
+
+/* Riêng phần Note (Ghi chú) */
+.note-text, .item-options div[style*="italic"] {
+    color: #e67e22 !important; /* Màu cam cho ghi chú */
+    background: transparent !important;
+    font-weight: 500;
+}
