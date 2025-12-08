@@ -1,0 +1,29 @@
+# Dependencies (Bắt buộc phải có để tránh nặng repo)
+node_modules/
+package-lock.json
+# (Nếu bạn muốn giữ lock file để đồng bộ version thì xóa dòng package-lock.json đi, nhưng thường nên giữ lại package-lock.json trên git)
+
+# Environment variables (Bảo mật key, DB string...)
+.env
+.env.local
+.env.*.local
+
+# Build Outputs (File sinh ra khi chạy build)
+dist/
+build/
+out/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs
+*.log
+
+# System Files (File rác của hệ điều hành)
+.DS_Store
+Thumbs.db
+
+# IDE/Editor config (Tùy chọn)
+.vscode/
+.idea/

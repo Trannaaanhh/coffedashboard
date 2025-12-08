@@ -1,0 +1,415 @@
+/* ================================================= */
+/* 1. LAYOUT CHUNG (Đồng nhất kích thước với OrderManager) */
+/* ================================================= */
+.combo-container {
+  max-width: 98%; /* Mở rộng 98% màn hình giống Order */
+  margin: 20px auto;
+  padding: 30px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  min-height: 80vh;
+}
+
+.page-title {
+  text-align: center;
+  color: #2c3e50;
+  margin-bottom: 30px;
+  font-size: 2rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* ================================================= */
+/* 2. FORM STYLES (Đồng bộ style) */
+/* ================================================= */
+.combo-form {
+  background-color: #f8f9fa;
+  padding: 35px;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+  margin-bottom: 40px;
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.combo-form h3 {
+  margin-top: 0;
+  margin-bottom: 25px;
+  color: #2c3e50;
+  font-size: 1.5rem;
+  font-weight: 600;
+  border-bottom: 2px solid #3498db;
+  display: inline-block;
+  padding-bottom: 8px;
+}
+
+.combo-form form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #34495e; /* Màu chữ chuẩn */
+  font-size: 0.95rem;
+}
+
+/* --- FIX LỖI INPUT MÀU TRẮNG (QUAN TRỌNG) --- */
+.form-group input,
+.form-group textarea,
+.item-input-row input {
+  padding: 12px;
+  border: 1px solid #bdc3c7;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-family: inherit;
+  transition: border-color 0.2s;
+  background-color: #ffffff !important; /* Nền trắng */
+  color: #000000 !important; /* Chữ đen tuyền */
+}
+
+/* Placeholder màu xám dễ nhìn */
+.form-group input::placeholder,
+.form-group textarea::placeholder,
+.item-input-row input::placeholder {
+  color: #95a5a6 !important;
+  opacity: 1;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #3498db; /* Xanh dương chuẩn */
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 25px;
+}
+
+/* --- ITEMS SECTION IN FORM --- */
+.items-section {
+  border: 1px dashed #bdc3c7;
+  padding: 25px;
+  border-radius: 8px;
+  background-color: #ffffff;
+}
+
+.items-section h4 {
+  margin-top: 0;
+  color: #2c3e50;
+  font-size: 1.1rem;
+}
+
+.items-list-input {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.item-input-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.item-input-row input:first-child {
+  flex: 1;
+}
+
+/* Buttons in Form */
+.btn-remove-item {
+  padding: 10px 15px;
+  background-color: #e74c3c; /* Đỏ chuẩn */
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.btn-remove-item:hover { background-color: #c0392b; }
+
+.btn-add-item {
+  width: 100%;
+  padding: 12px;
+  background-color: #3498db; /* Xanh dương chuẩn */
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 15px;
+  transition: all 0.2s;
+}
+.btn-add-item:hover { background-color: #2980b9; }
+
+.form-actions {
+  display: flex;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.btn-save, .btn-cancel {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.btn-save { background-color: #27ae60; color: white; } /* Xanh lá chuẩn */
+.btn-save:hover { background-color: #219150; transform: translateY(-2px); }
+
+.btn-cancel { background-color: #95a5a6; color: white; }
+.btn-cancel:hover { background-color: #7f8c8d; transform: translateY(-2px); }
+
+/* --- BUTTON MỞ FORM --- */
+.btn-add-combo {
+  display: block;
+  margin: 0 auto 30px;
+  padding: 12px 30px;
+  background-color: #27ae60; /* Xanh lá chuẩn */
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 6px rgba(39, 174, 96, 0.2);
+}
+.btn-add-combo:hover { background-color: #219150; transform: translateY(-2px); }
+
+/* ================================================= */
+/* 3. GRID & CARDS (Giao diện hiển thị) */
+/* ================================================= */
+.combo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 30px;
+  margin-top: 30px;
+}
+
+.combo-card {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e0e0e0;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+}
+
+.combo-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  border-color: #3498db;
+}
+
+.combo-image-container {
+  position: relative;
+  width: 100%;
+  height: 220px;
+  overflow: hidden;
+  border-bottom: 1px solid #f0f0f0;
+  background-color: #ecf0f1;
+}
+
+.combo-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s;
+}
+.combo-card:hover .combo-image { transform: scale(1.05); }
+
+.no-image {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #bdc3c7;
+  font-weight: bold;
+}
+
+.discount-badge-large {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: #e74c3c; /* Đỏ chuẩn */
+  color: white;
+  padding: 6px 14px;
+  border-radius: 50px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.combo-info {
+  padding: 25px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* TYPOGRAPHY CHO CARD */
+.combo-info h3 {
+  margin: 0 0 10px 0;
+  color: #2c3e50;
+  font-size: 1.3rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.description {
+  margin: 0 0 15px 0;
+  color: #4a4a4a;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  flex-grow: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.category-badge {
+  display: inline-block;
+  background-color: #e8f4fd;
+  color: #2980b9;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+  border: 1px solid #d6eaf8;
+}
+
+/* COMBO ITEMS LIST (STYLE ĐƠN GIẢN, DỄ NHÌN) */
+.combo-items {
+  background-color: #ffffff;
+  padding: 10px 0;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  font-size: 0.95rem;
+  border-top: 1px solid #eee;
+  border-bottom: 1px solid #eee;
+}
+
+.combo-items strong {
+  display: block;
+  margin-bottom: 8px;
+  color: #34495e;
+  font-weight: 700;
+}
+
+.combo-items ul {
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+}
+
+.combo-items li {
+  margin: 6px 0;
+  color: #333;
+  font-weight: 400; 
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Badge số lượng (1x, 2x) */
+.item-qty-badge {
+  background-color: #f1f2f6;
+  color: #2c3e50;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  border: 1px solid #e0e0e0;
+}
+
+/* PRICE SECTION */
+.price-section {
+  margin-top: auto;
+  padding-top: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.original-price {
+  font-size: 1rem;
+  color: #95a5a6;
+  text-decoration: line-through;
+  font-weight: 500;
+}
+
+.discounted-price {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #e74c3c;
+  letter-spacing: -0.5px;
+}
+
+/* ACTIONS */
+.combo-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.btn-edit, .btn-delete {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.btn-edit { background-color: #3498db; color: white; }
+.btn-edit:hover { background-color: #2980b9; transform: translateY(-2px); }
+
+.btn-delete { background-color: #e74c3c; color: white; }
+.btn-delete:hover { background-color: #c0392b; transform: translateY(-2px); }
+
+/* LOADING & EMPTY */
+.loading, .empty-state {
+  text-align: center;
+  padding: 40px;
+  font-size: 1.1rem;
+  color: #7f8c8d;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .form-row { grid-template-columns: 1fr; }
+  .combo-grid { grid-template-columns: 1fr; }
+}
