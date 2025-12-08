@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { io } from "socket.io-client"; // [MỚI] Import socket
 import "./OrderManager.css";
 
 // Import hình ảnh
@@ -24,7 +25,6 @@ const OrderManager = () => {
 
   const API_URL = "http://localhost:3000";
 
-  // --- HÀM QUAN TRỌNG: LẤY ID CHUẨN TỪ MONGODB EXPORT ---
   const getOrderId = (order) => {
     if (!order || !order._id) return "";
     if (typeof order._id === 'string') return order._id;
@@ -66,7 +66,6 @@ const OrderManager = () => {
       setLoading(true);
       const res = await axios.get(`${API_URL}/orders`);
       
-      // Xử lý dữ liệu để tương thích với format $date của Mongo Export
       const processedOrders = res.data.map(order => ({
         ...order,
         orderDate: order.orderDate?.$date ? order.orderDate.$date : order.orderDate
@@ -78,7 +77,7 @@ const OrderManager = () => {
       setOrders(sortedOrders);
     } catch (error) {
       console.error("Lỗi tải đơn hàng:", error);
-      alert("Không thể kết nối đến server!");
+      // alert("Không thể kết nối đến server!");
     } finally {
       setLoading(false);
     }
@@ -86,6 +85,20 @@ const OrderManager = () => {
 
   useEffect(() => {
     fetchOrders();
+
+    // [MỚI] Lắng nghe socket để cập nhật danh sách realtime
+    const socket = io(API_URL);
+    socket.on("newOrder", (newOrder) => {
+        // Xử lý date format cho giống cấu trúc hiện tại nếu cần
+        const processedOrder = {
+            ...newOrder,
+            orderDate: newOrder.orderDate?.$date ? newOrder.orderDate.$date : newOrder.orderDate
+        };
+        // Thêm đơn mới vào đầu danh sách
+        setOrders((prevOrders) => [processedOrder, ...prevOrders]);
+    });
+
+    return () => socket.disconnect();
   }, []);
 
   const openModal = (order) => {
@@ -99,13 +112,9 @@ const OrderManager = () => {
 
   const updateStatus = async () => {
     if (!selectedOrder) return;
-    
-    // Lấy ID chuẩn để gọi API
     const orderId = getOrderId(selectedOrder);
 
     try {
-      console.log(`Updating Order ${orderId} to ${tempStatus}`); // Log kiểm tra
-      
       await axios.patch(`${API_URL}/orders/${orderId}/status`, {
         status: tempStatus
       });
@@ -118,8 +127,6 @@ const OrderManager = () => {
       setOrders(updatedOrders);
       closeModal();
     } catch (error) {
-      console.error("Update failed:", error);
-      // Hiển thị chi tiết lỗi từ backend (thường nằm trong response.data.error hoặc message)
       const errorMsg = error.response?.data?.message || error.response?.data?.error || error.message;
       alert("Lỗi cập nhật: " + errorMsg);
     }
@@ -143,7 +150,7 @@ const OrderManager = () => {
       case "Delivering": return "status-delivering";
       case "Delivered": return "status-delivered";
       case "Cancelled": return "status-cancelled";
-      case "Unpaid": return "status-pending"; // Map thêm Unpaid
+      case "Unpaid": return "status-pending";
       default: return "";
     }
   };
@@ -248,7 +255,7 @@ const OrderManager = () => {
 
                            {item.itemNote && (
                                <div style={{color: '#e67e22', fontStyle: 'italic', fontSize: '0.85rem', marginTop: '4px'}}>
-                                   Note: {item.itemNote}
+                                    Note: {item.itemNote}
                                </div>
                            )}
                         </div>
@@ -282,7 +289,6 @@ const OrderManager = () => {
                         <option value="Confirmed">✅ Đã xác nhận (Confirmed)</option>
                         <option value="Delivering">🚚 Đang giao (Delivering)</option>
                         <option value="Delivered">🎁 Đã giao (Delivered)</option>
-                        {/* ĐÃ XÓA OPTION "Completed" VÌ KHÔNG CÓ TRONG DB */}
                         <option value="Cancelled">❌ Hủy đơn (Cancelled)</option>
                     </select>
                     <button className="btn-save" onClick={updateStatus}>Lưu Trạng Thái</button>

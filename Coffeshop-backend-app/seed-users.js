@@ -10,7 +10,6 @@ const seedUsers = async () => {
     await mongoose.connect(process.env.MONGO_URI);
     console.log("✅ Connected to MongoDB");
 
-    // Demo users data
     const usersData = [
       {
         fullName: "Nguyễn Văn A (Quản trị viên)",
