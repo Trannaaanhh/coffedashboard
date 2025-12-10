@@ -18,6 +18,9 @@ const ComboManager = () => {
     items: [],
   });
 
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState("");
+
   const API_URL = "http://localhost:3000";
 
   const fetchCombos = async () => {
@@ -39,6 +42,20 @@ const ComboManager = () => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImageFile(file);
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+        setFormData({ ...formData, image_url: reader.result });
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleAddItem = () => {
@@ -64,11 +81,22 @@ const ComboManager = () => {
   const handleAddCombo = async (e) => {
     e.preventDefault();
     try {
+      // Prepare data with proper type conversion
+      const dataToSend = {
+        name: formData.name,
+        description: formData.description,
+        category: formData.category,
+        basePrice: parseInt(formData.basePrice) || 0,
+        image_url: formData.image_url,
+        discount: parseInt(formData.discount) || 0,
+        items: formData.items || [],
+      };
+
       if (editingCombo) {
-        await axios.put(`${API_URL}/combos/${editingCombo._id}`, formData);
+        await axios.put(`${API_URL}/combos/${editingCombo._id}`, dataToSend);
         alert("✅ Cập nhật thành công!");
       } else {
-        await axios.post(`${API_URL}/combos`, formData);
+        await axios.post(`${API_URL}/combos`, dataToSend);
         alert("✅ Tạo mới thành công!");
       }
       resetForm();
@@ -89,6 +117,8 @@ const ComboManager = () => {
       discount: combo.discount,
       items: combo.items || [],
     });
+    setImagePreview(combo.image_url);
+    setImageFile(null);
     setShowForm(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -96,6 +126,7 @@ const ComboManager = () => {
   const handleDeleteCombo = async (id) => {
     if (window.confirm("Bạn chắc chắn muốn xóa combo này?")) {
       try {
+        console.log("Deleting combo with ID:", id, "Type:", typeof id);
         await axios.delete(`${API_URL}/combos/${id}`);
         alert("✅ Đã xóa!");
         fetchCombos();
@@ -117,10 +148,13 @@ const ComboManager = () => {
     });
     setEditingCombo(null);
     setShowForm(false);
+    setImageFile(null);
+    setImagePreview("");
   };
 
   const formatMoney = (amount) => {
-    return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(amount);
+    const num = parseFloat(amount) || 0;
+    return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(num);
   };
 
   return (
@@ -194,14 +228,28 @@ const ComboManager = () => {
             </div>
 
             <div className="form-group">
-              <label>Ảnh URL:</label>
+              <label>Ảnh Combo:</label>
+              <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  style={{ flex: 1 }}
+                />
+                <span style={{ fontSize: '12px', color: '#999' }}>hoặc</span>
+              </div>
               <input
                 type="text"
                 name="image_url"
-                value={formData.image_url}
+                value={typeof formData.image_url === 'string' && !formData.image_url.startsWith('data:') ? formData.image_url : ''}
                 onChange={handleInputChange}
-                placeholder="https://..."
+                placeholder="Dán URL ảnh từ internet..."
               />
+              {imagePreview && (
+                <div style={{ marginTop: '10px', textAlign: 'center' }}>
+                  <img src={imagePreview} alt="Preview" style={{ maxWidth: '100%', maxHeight: '200px', borderRadius: '5px' }} />
+                </div>
+              )}
             </div>
 
             <div className="items-section">
@@ -288,13 +336,15 @@ const ComboManager = () => {
                 )}
 
                 <div className="price-section">
-                  {combo.discount > 0 ? (
+                  {combo.discount && combo.discount > 0 ? (
                     <>
-                      <span className="original-price">{formatMoney(combo.basePrice)}</span>
-                      <span className="discounted-price">{formatMoney(combo.discountedPrice)}</span>
+                      <span className="original-price">{formatMoney(combo.basePrice || 0)}</span>
+                      <span className="discounted-price">
+                        {formatMoney(combo.discountedPrice || Math.round((combo.basePrice || 0) * (1 - (combo.discount || 0) / 100)))}
+                      </span>
                     </>
                   ) : (
-                    <span className="discounted-price">{formatMoney(combo.basePrice)}</span>
+                    <span className="discounted-price">{formatMoney(combo.basePrice || 0)}</span>
                   )}
                 </div>
 

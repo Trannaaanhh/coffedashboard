@@ -518,9 +518,12 @@
 .modal-body .info-group p,
 .modal-body .info-group strong,
 .modal-body .item-details strong,
-.modal-body .item-details span {
+.modal-body .item-details span,
+.modal-body .item-price,
+.modal-body .sum-row,
+.modal-body .sum-row span {
     background-color: transparent !important; /* Xóa nền xanh bị lỗi */
-    color: #333 !important; /* Chữ màu đen xám dễ đọc */
+    color: #1a1a1a !important; /* Chữ màu đen đậm dễ đọc hơn */
     box-shadow: none !important;
     text-shadow: none !important;
 }
@@ -583,7 +586,7 @@
 /* Phần option (đá, đường) */
 .item-options {
     background-color: #f8f9fa !important; /* Nền xám rất nhạt cho box option */
-    color: #555 !important;
+    color: #333 !important; /* Màu chữ đậm hơn */
     border: 1px solid #eee;
 }
 

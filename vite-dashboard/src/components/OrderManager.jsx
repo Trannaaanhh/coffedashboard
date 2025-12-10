@@ -147,7 +147,7 @@ const OrderManager = () => {
         try {
           const title = note.message || 'Có đơn hàng mới!';
           const money = note.order ? new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(note.order.totalAmount || 0) : '';
-          const body = note.order ? `Mã: #${note.order._id ? note.order._id.slice(-6).toUpperCase() : 'N/A'} • Tổng: ${money}` : '';
+          const body = note.order ? `Khách: ${note.order.deliveryAddress?.fullName || 'Khách vãng lai'} • Tổng: ${money}` : '';
           new Notification(title, { body });
         } catch (e) {}
       }
@@ -266,7 +266,6 @@ const OrderManager = () => {
                       <div className="notif-item-title">{note.message}</div>
                       {note.order && (
                         <div className="notif-item-details">
-                          <div>Mã: #{note.order._id ? note.order._id.slice(-6).toUpperCase() : 'N/A'}</div>
                           <div>Khách: {note.order.deliveryAddress?.fullName || 'Khách vãng lai'}</div>
                           <div>Tổng: {formatMoney(note.order.totalAmount || 0)}</div>
                         </div>
@@ -293,8 +292,6 @@ const OrderManager = () => {
               <strong>{notification.message}</strong>
               {notification.order && (
                 <div className="notification-details">
-                  <span>Mã đơn: #{notification.order._id ? notification.order._id.slice(-6).toUpperCase() : "N/A"}</span>
-                  <span>•</span>
                   <span>Khách: {notification.order.deliveryAddress?.fullName || "Khách vãng lai"}</span>
                   <span>•</span>
                   <span>Tổng: {formatMoney(notification.order.totalAmount || 0)}</span>
@@ -315,29 +312,10 @@ const OrderManager = () => {
         <div className="loading">Đang tải dữ liệu...</div>
       ) : (
         <>
-          <div className="filters-bar">
-            <input type="text" placeholder="Tìm kiếm (mã, tên, số điện thoại, món)" value={filterKeyword} onChange={(e) => setFilterKeyword(e.target.value)} />
-            <input type="text" placeholder="Thành phố" value={filterCity} onChange={(e) => setFilterCity(e.target.value)} />
-            <input type="text" placeholder="Quận/Huyện" value={filterDistrict} onChange={(e) => setFilterDistrict(e.target.value)} />
-            <input type="text" placeholder="Phường/Xã" value={filterWard} onChange={(e) => setFilterWard(e.target.value)} />
-            <select value={filterPayment} onChange={(e) => setFilterPayment(e.target.value)}>
-              <option value="">Phương thức thanh toán</option>
-              <option value="Cash">Tiền mặt</option>
-              <option value="VNPAY">VNPAY</option>
-              <option value="MOMO">MOMO</option>
-              <option value="Card">Thẻ</option>
-            </select>
-            <label className="date-label">Từ: <input type="date" value={filterDateFrom} onChange={(e) => setFilterDateFrom(e.target.value)} /></label>
-            <label className="date-label">Đến: <input type="date" value={filterDateTo} onChange={(e) => setFilterDateTo(e.target.value)} /></label>
-            <button className="btn-apply-filters" onClick={() => fetchOrders()}>Áp dụng</button>
-            <button className="btn-clear-filters" onClick={() => { setFilterCity(""); setFilterDistrict(""); setFilterWard(""); setFilterPayment(""); setFilterDateFrom(""); setFilterDateTo(""); setFilterKeyword(""); fetchOrders(); }}>Xóa</button>
-          </div>
-
           <div className="table-responsive">
           <table className="order-table">
             <thead>
               <tr>
-                <th>Mã Đơn</th>
                 <th>Ngày đặt</th>
                 <th>Khách hàng</th>
                 <th>Tổng tiền</th>
@@ -348,7 +326,6 @@ const OrderManager = () => {
             <tbody>
               {orders.map((order) => (
                 <tr key={order._id}>
-                  <td>#{order._id ? order._id.slice(-6).toUpperCase() : "N/A"}</td>
                   <td>{formatDate(order.orderDate)}</td>
                   <td>
                     <div className="customer-info">
@@ -380,7 +357,7 @@ const OrderManager = () => {
         <div className="modal-overlay" onClick={closeModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h3>Chi tiết đơn: #{selectedOrder._id ? selectedOrder._id.slice(-6).toUpperCase() : "N/A"}</h3>
+              <h3>Chi tiết đơn hàng</h3>
               <span className="close-btn" onClick={closeModal}>&times;</span>
             </div>
 

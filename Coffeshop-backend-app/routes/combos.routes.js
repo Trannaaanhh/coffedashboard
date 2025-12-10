@@ -36,7 +36,6 @@ router.post("/", async (req, res) => {
     const discountedPrice = discount ? Math.round(basePrice * (1 - discount / 100)) : basePrice;
     
     const newCombo = await Combo.create({
-      _id: new Date().getTime().toString(),
       name,
       description,
       category,
@@ -88,7 +87,9 @@ router.put("/:id", async (req, res) => {
 // --- DELETE combo ---
 router.delete("/:id", async (req, res) => {
   try {
+    console.log("Deleting combo with ID:", req.params.id);
     const deletedCombo = await Combo.findByIdAndDelete(req.params.id);
+    console.log("Deleted result:", deletedCombo);
     if (!deletedCombo) return res.status(404).json({ error: "Combo not found" });
     res.json({ message: "Combo deleted successfully" });
   } catch (err) {

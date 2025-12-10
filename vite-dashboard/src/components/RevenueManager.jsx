@@ -27,7 +27,7 @@ const RevenueManager = () => {
       const daily = res.data.daily.map(item => ({
         date: item._id,
         revenue: item.totalRevenue,
-        orders: item.count
+        orders: item.orderCount // Sử dụng orderCount từ API
       }));
 
       const status = res.data.status.map(item => ({
@@ -51,6 +51,9 @@ const RevenueManager = () => {
 
   const formatMoney = (val) =>
     new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val);
+  
+  const formatNumber = (val) => // Thêm hàm format cho số lượng đơn
+    new Intl.NumberFormat('vi-VN').format(val);
 
   return (
     <div className="stats-container">
@@ -78,17 +81,19 @@ const RevenueManager = () => {
 
             {/* DAILY REVENUE */}
             <div className="chart-box">
-              <h4 className="chart-title">📈 Doanh thu theo ngày</h4>
+              <h4 className="chart-title">📈 Doanh thu & Số đơn theo ngày</h4> {/* Cập nhật tiêu đề */}
 
               <div style={{ width: '100%', height: 350 }}>
-                <ResponsiveContainer>
+                <ResponsiveContainer minWidth={0} minHeight={0}>
                   <BarChart data={dailyData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} />
                     <XAxis dataKey="date" />
-                    <YAxis />
-                    <Tooltip formatter={(value) => formatMoney(value)} />
+                    <YAxis yAxisId="left" orientation="left" stroke="#8884d8" tickFormatter={(value) => new Intl.NumberFormat('vi-VN', { notation: 'compact' }).format(value)} /> {/* Trục Y cho doanh thu */}
+                    <YAxis yAxisId="right" orientation="right" stroke="#82ca9d" /> {/* Trục Y cho số đơn */}
+                    <Tooltip formatter={(value, name) => name === 'Doanh thu' ? formatMoney(value) : `${formatNumber(value)} đơn`} /> {/* Cập nhật formatter cho Tooltip */}
                     <Legend />
-                    <Bar dataKey="revenue" name="Doanh thu" fill="#8884d8" radius={[5, 5, 0, 0]} barSize={50} />
+                    <Bar yAxisId="left" dataKey="revenue" name="Doanh thu" fill="#8884d8" radius={[5, 5, 0, 0]} /> {/* Bar cho doanh thu */}
+                    <Bar yAxisId="right" dataKey="orders" name="Số đơn" fill="#82ca9d" radius={[5, 5, 0, 0]} /> {/* Bar cho số đơn */}
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -99,7 +104,7 @@ const RevenueManager = () => {
               <h4 className="chart-title">🍕 Tỷ lệ trạng thái đơn</h4>
 
               <div style={{ width: '100%', height: 350 }}>
-                <ResponsiveContainer>
+                <ResponsiveContainer minWidth={0} minHeight={0}>
                   <PieChart>
                     <Pie
                       data={statusData}

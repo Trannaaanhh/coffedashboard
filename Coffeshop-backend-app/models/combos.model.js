@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 
 const combosSchema = new mongoose.Schema({
-  _id: String,
   name: String,
   description: String,
   category: String,

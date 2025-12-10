@@ -12,7 +12,7 @@ router.get("/stats/revenue", async (req, res) => {
         $group: {
           _id: { $dateToString: { format: "%Y-%m-%d", date: "$orderDate" } },
           totalRevenue: { $sum: "$totalAmount" },
-          count: { $sum: 1 }
+          orderCount: { $sum: 1 } // Đổi tên từ 'count' thành 'orderCount' cho rõ ràng
         }
       },
       { $sort: { _id: 1 } } // Sắp xếp theo ngày tăng dần
@@ -89,22 +89,66 @@ router.patch("/:id/status", async (req, res) => {
 // Lọc đơn hàng
 router.get("/filter", async (req, res) => {
   try {
-    const { userId, status, status_ne, keyword } = req.query;
+    const { userId, status, status_ne, keyword, city, district, ward, paymentMethod, date_from, date_to } = req.query;
     let query = {};
+    
     if (userId) query.userId = userId;
     if (status) query.status = status;
     if (status_ne) query.status = { $ne: status_ne };
-    if (keyword) {
-       const kw = keyword.trim();
-       query.$or = [
-         { _id: kw.length === 24 ? kw : null }, // Chỉ tìm ID nếu đúng độ dài ObjectId
-         { 'deliveryAddress.fullName': { $regex: kw, $options: 'i' } },
-         { 'deliveryAddress.phone': { $regex: kw, $options: 'i' } }
-       ].filter(Boolean); // Lọc bỏ null
+    if (city) query['deliveryAddress.city'] = city;
+    if (district) query['deliveryAddress.district'] = district;
+    if (ward) query['deliveryAddress.ward'] = ward;
+    if (paymentMethod) query.paymentMethod = paymentMethod;
+    
+    // Date range filter
+    if (date_from || date_to) {
+      query.orderDate = {};
+      if (date_from) query.orderDate.$gte = new Date(date_from);
+      if (date_to) {
+        const toDate = new Date(date_to);
+        toDate.setHours(23, 59, 59, 999);
+        query.orderDate.$lte = toDate;
+      }
     }
+    
+    if (keyword) {
+       try {
+         const kw = keyword.trim();
+         // Remove '#' if user includes it
+         const cleanKw = kw.replace(/^#/, '').trim();
+         
+         const orConditions = [];
+         
+         // Tìm theo tên khách hàng (case-insensitive)
+         if (cleanKw.length > 0) {
+           orConditions.push({ 'deliveryAddress.fullName': { $regex: cleanKw, $options: 'i' } });
+         }
+         
+         // Tìm theo số điện thoại
+         if (cleanKw.length > 0) {
+           orConditions.push({ 'deliveryAddress.phone': { $regex: cleanKw, $options: 'i' } });
+         }
+         
+         // Tìm theo tên sản phẩm/món
+         if (cleanKw.length > 0) {
+           orConditions.push({ 'items.productName': { $regex: cleanKw, $options: 'i' } });
+         }
+         
+         if (orConditions.length > 0) {
+           query.$or = orConditions;
+         }
+       } catch (err) {
+         console.error("Keyword search error:", err);
+       }
+    }
+    
     const orders = await Order.find(query).sort({ orderDate: -1 });
+    
     res.json(orders);
-  } catch (err) { res.status(500).json({ error: err.message }); }
+  } catch (err) { 
+    console.error("Filter error:", err);
+    res.status(500).json({ error: err.message }); 
+  }
 });
 
 // Lấy tất cả
