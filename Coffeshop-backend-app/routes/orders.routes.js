@@ -2,167 +2,161 @@ const express = require("express");
 const router = express.Router();
 const Order = require("../models/orders.model");
 
-// --- 1. API THỐNG KÊ DOANH THU (MỚI) ---
-router.get("/stats/revenue", async (req, res) => {
+// --- Tạo đơn ---
+router.post("/", async (req, res) => {
   try {
-    // Thống kê doanh thu theo ngày (Chỉ tính đơn Delivered)
-    const dailyStats = await Order.aggregate([
-      { $match: { status: "Delivered" } },
-      {
-        $group: {
-          _id: { $dateToString: { format: "%Y-%m-%d", date: "$orderDate" } },
-          totalRevenue: { $sum: "$totalAmount" },
-          orderCount: { $sum: 1 } // Đổi tên từ 'count' thành 'orderCount' cho rõ ràng
-        }
-      },
-      { $sort: { _id: 1 } } // Sắp xếp theo ngày tăng dần
-    ]);
+    const order = await Order.create(req.body);
 
-    // Thống kê tỷ lệ trạng thái đơn hàng
-    const statusStats = await Order.aggregate([
-      {
-        $group: {
-          _id: "$status",
-          count: { $sum: 1 }
-        }
-      }
-    ]);
+    res.status(201).json({
+      message: "Order created successfully",
+      order,
+    });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
 
-    res.json({ daily: dailyStats, status: statusStats });
+// --- Hủy đơn (cập nhật trạng thái thành Cancelled) ---
+router.delete("/usercancell/:id", async (req, res) => {
+  try {
+    const order = await Order.findByIdAndUpdate(
+      req.params.id,
+      { status: "Cancelled" },
+      { new: true }
+    );
+
+    if (!order) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+
+    res.json({
+      message: "Order cancelled successfully",
+      order,
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// --- 2. TẠO ĐƠN MỚI (KÈM SOCKET IO) ---
-router.post("/", async (req, res) => {
+// --- Xác nhận đơn ---
+router.post("/userconfirm/:id", async (req, res) => {
   try {
-    const order = await Order.create(req.body);
+    const order = await Order.findByIdAndUpdate(
+      req.params.id,
+      { status: "Confirmed" },
+      { new: true }
+    );
 
-    // Bắn Socket thông báo
-    try {
-      const io = req.app.get("socketio");
-      const customerName = order.deliveryAddress?.fullName || "Khách vãng lai";
-      const totalMoney = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.totalAmount);
-
-      io.emit("new_order", {
-        title: "🔔 Đơn hàng mới!",
-        message: `${customerName} vừa đặt đơn: ${totalMoney}`,
-        orderData: order
-      });
-      console.log("📡 Socket sent: new_order");
-    } catch (e) { console.error("Socket error:", e); }
-
-    res.status(201).json({ message: "Order created successfully", order });
-  } catch (err) { res.status(400).json({ error: err.message }); }
-});
-
-// --- 3. CÁC API CƠ BẢN KHÁC (GIỮ NGUYÊN) ---
-
-// Hủy đơn
-router.delete("/:id", async (req, res) => {
-  try {
-    const order = await Order.findByIdAndUpdate(req.params.id, { status: "Cancelled" }, { new: true });
-    if (!order) return res.status(404).json({ error: "Order not found" });
-    res.json({ message: "Order cancelled", order });
-  } catch (err) { res.status(500).json({ error: err.message }); }
-});
-
-// Cập nhật thông tin
-router.put("/:id", async (req, res) => {
-  try {
-    const order = await Order.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!order) return res.status(404).json({ error: "Order not found" });
-    res.json({ message: "Order updated", order });
-  } catch (err) { res.status(500).json({ error: err.message }); }
-});
-
-// Đổi trạng thái
-router.patch("/:id/status", async (req, res) => {
-  try {
-    const order = await Order.findByIdAndUpdate(req.params.id, { status: req.body.status }, { new: true });
-    if (!order) return res.status(404).json({ error: "Order not found" });
-    res.json({ message: "Status updated", order });
-  } catch (err) { res.status(500).json({ error: err.message }); }
-});
-
-// Lọc đơn hàng
-router.get("/filter", async (req, res) => {
-  try {
-    const { userId, status, status_ne, keyword, city, district, ward, paymentMethod, date_from, date_to } = req.query;
-    let query = {};
-    
-    if (userId) query.userId = userId;
-    if (status) query.status = status;
-    if (status_ne) query.status = { $ne: status_ne };
-    if (city) query['deliveryAddress.city'] = city;
-    if (district) query['deliveryAddress.district'] = district;
-    if (ward) query['deliveryAddress.ward'] = ward;
-    if (paymentMethod) query.paymentMethod = paymentMethod;
-    
-    // Date range filter
-    if (date_from || date_to) {
-      query.orderDate = {};
-      if (date_from) query.orderDate.$gte = new Date(date_from);
-      if (date_to) {
-        const toDate = new Date(date_to);
-        toDate.setHours(23, 59, 59, 999);
-        query.orderDate.$lte = toDate;
-      }
+    if (!order) {
+      return res.status(404).json({ error: "Order not found" });
     }
-    
-    if (keyword) {
-       try {
-         const kw = keyword.trim();
-         // Remove '#' if user includes it
-         const cleanKw = kw.replace(/^#/, '').trim();
-         
-         const orConditions = [];
-         
-         // Tìm theo tên khách hàng (case-insensitive)
-         if (cleanKw.length > 0) {
-           orConditions.push({ 'deliveryAddress.fullName': { $regex: cleanKw, $options: 'i' } });
-         }
-         
-         // Tìm theo số điện thoại
-         if (cleanKw.length > 0) {
-           orConditions.push({ 'deliveryAddress.phone': { $regex: cleanKw, $options: 'i' } });
-         }
-         
-         // Tìm theo tên sản phẩm/món
-         if (cleanKw.length > 0) {
-           orConditions.push({ 'items.productName': { $regex: cleanKw, $options: 'i' } });
-         }
-         
-         if (orConditions.length > 0) {
-           query.$or = orConditions;
-         }
-       } catch (err) {
-         console.error("Keyword search error:", err);
-       }
-    }
-    
-    const orders = await Order.find(query).sort({ orderDate: -1 });
-    
-    res.json(orders);
-  } catch (err) { 
-    console.error("Filter error:", err);
-    res.status(500).json({ error: err.message }); 
+
+    res.json({
+      message: "Order confirmed successfully",
+      order,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 
-// Lấy tất cả
-router.get("/", async (req, res) => {
-  try { res.json(await Order.find().sort({ orderDate: -1 })); } 
-  catch (err) { res.status(500).json({ error: err.message }); }
+// --- Cập nhật thông tin đơn ---
+router.put("/:id", async (req, res) => {
+  try {
+    const updatedOrder = await Order.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
+
+    if (!updatedOrder) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+
+    res.json({
+      message: "Order updated successfully",
+      order: updatedOrder,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
+// --- Đổi trạng thái đơn (KHÔNG gửi notification nữa) ---
+router.patch("/:id/status", async (req, res) => {
+  try {
+    const { status } = req.body;
+
+    const validStatuses = [
+      "Pending",
+      "Unpaid",
+      "Confirmed",
+      "Delivering",
+      "Delivered",
+      "Cancelled",
+    ];
+
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ error: "Invalid order status" });
+    }
+
+    const order = await Order.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true }
+    );
+
+    if (!order) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+
+    return res.json({
+      message: "Order status updated successfully",
+      order,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// --- Lấy danh sách đơn ---
+router.get("/", async (req, res) => {
+  try {
+    const orders = await Order.find();
+    res.json(orders);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// --- Lọc theo userId và status (hỗ trợ status != ) ---
+router.get("/filter", async (req, res) => {
+  try {
+    const { userId, status, status_ne } = req.query;
+
+    let query = {};
+
+    if (userId) query.userId = userId;
+    if (status) query.status = status;
+    if (status_ne) query.status = { $ne: status_ne };
+
+    const orders = await Order.find(query);
+    res.json(orders);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// --- Lấy đơn theo ID ---
 router.get("/:id", async (req, res) => {
   try {
     const order = await Order.findById(req.params.id);
     if (!order) return res.status(404).json({ error: "Order not found" });
+
     res.json(order);
-  } catch (err) { res.status(500).json({ error: err.message }); }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 module.exports = router;
