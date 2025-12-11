@@ -1,14 +1,15 @@
-import React from 'react'
+import React, { useState } from 'react'
 
 
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-// Không cần import LoginPage nữa
+import RevenueManager from './components/RevenueManager'; // Import RevenueManager
 import OrderManager from './components/OrderManager'
 import './App.css'
 
 function App() {
+  const [activeTab, setActiveTab] = useState('orders'); // State để quản lý tab đang hoạt động
 
   return (
     <div className="App">
@@ -24,13 +25,23 @@ function App() {
 
       {/* Chỉ còn 1 tab duy nhất nên để active mặc định */}
       <div className="tab-navigation">
-        <button className="tab-btn active">
+        <button
+          className={`tab-btn ${activeTab === 'orders' ? 'active' : ''}`}
+          onClick={() => setActiveTab('orders')}
+        >
           📦 Đơn Hàng
+        </button>
+        <button
+          className={`tab-btn ${activeTab === 'revenue' ? 'active' : ''}`}
+          onClick={() => setActiveTab('revenue')}
+        >
+          📊 Doanh Thu
         </button>
       </div>
 
       <div className="tab-content">
-        <OrderManager />
+        {activeTab === 'orders' && <OrderManager />}
+        {activeTab === 'revenue' && <RevenueManager />}
       </div>
     </div>
   )

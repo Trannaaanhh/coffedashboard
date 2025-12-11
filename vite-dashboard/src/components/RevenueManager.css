@@ -1,160 +1,150 @@
-/* ================================================= */
-/* 1. CONTAINER & TITLE */
-/* ================================================= */
+/* RevenueManager.css */
 
-.stats-container {
-  max-width: 98%;
-  margin: 30px auto;
-  padding: 40px;
-  background-color: #f8f9fa;
-  border-radius: 16px;
-  min-height: 85vh;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+.revenue-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 30px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.stats-title {
-  text-align: left;
-  color: #2c3e50;
-  margin-bottom: 30px;
-  font-size: 2rem;
-  font-weight: 800;
-  letter-spacing: -0.5px;
-  padding-left: 10px;
-  border-left: 5px solid #3498db;
-  line-height: 1;
+.rev-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 15px;
 }
 
-/* ================================================= */
-/* 2. SUMMARY CARDS */
-/* ================================================= */
+/* --- Filter Buttons --- */
+.filter-group {
+    display: flex;
+    background: #f1f2f6;
+    padding: 5px;
+    border-radius: 8px;
+}
 
+.filter-btn {
+    padding: 8px 16px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-weight: 600;
+    color: #7f8c8d;
+    border-radius: 6px;
+    transition: all 0.3s;
+}
+
+.filter-btn.active {
+    background: #fff;
+    color: #2c3e50;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* --- Summary Cards --- */
 .summary-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 20px;
-  margin-bottom: 40px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
 }
 
-.card-item {
-  background: white;
-  border-radius: 16px;
-  padding: 25px 20px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-start;
-  position: relative;
-  overflow: hidden;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  border: 1px solid rgba(0,0,0,0.05);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+.card {
+    padding: 20px;
+    border-radius: 10px;
+    color: white;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    position: relative;
+    overflow: hidden;
 }
 
-.card-item:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-}
+.card h3 { margin: 0; font-size: 1rem; opacity: 0.9; font-weight: 500; }
+.card p { margin: 10px 0 5px; font-size: 1.8rem; font-weight: bold; }
+.card small { font-size: 0.8rem; opacity: 0.8; }
 
-.card-item:nth-child(1) { border-bottom: 5px solid #4facfe; }
-.card-item:nth-child(2) { border-bottom: 5px solid #43e97b; }
+.revenue-card { background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); }
+.order-card { background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); }
+.avg-card { background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%); }
 
-.card-item h3 {
-  margin: 0 0 10px 0;
-  font-size: 1rem;
-  color: #7f8c8d;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.card-item p {
-  margin: 0;
-  font-size: 2.2rem;
-  font-weight: 800;
-  color: #2c3e50;
-  line-height: 1.2;
-}
-
-.card-item::after {
-  content: '';
-  position: absolute;
-  right: -15px;
-  top: -15px;
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  opacity: 0.08;
-  z-index: 0;
-}
-
-.card-item:nth-child(1)::after { background: #4facfe; }
-.card-item:nth-child(2)::after { background: #43e97b; }
-
-/* ============================= */
-/* 3. CHARTS — FIXED SPACING     */
-/* ============================= */
-
+/* --- Charts Layout --- */
 .charts-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 50px;              /* Tăng từ 25px → 50px */
-  align-items: flex-start;
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
+}
+
+@media (max-width: 900px) {
+    .charts-grid { grid-template-columns: 1fr; }
 }
 
 .chart-box {
-  background: white;
-  padding: 40px;          /* Tăng từ 30px → 40px */
-  border-radius: 20px;    /* Bo góc lớn cho thoáng */
-  border: 1px solid rgba(0,0,0,0.05);
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04);
-  min-height: 430px;      /* Tăng chiều cao để nhìn thoáng */
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.02);
 }
 
-/* Title chart */
-.chart-title {
-  margin: 0 0 25px 0;
-  font-size: 1.6rem;      /* Tăng size chữ */
-  font-weight: 800;
-  color: #2c3e50;
-  text-transform: uppercase;
-  letter-spacing: 0.6px;
+.chart-box h3 {
+    margin-top: 0;
+    color: #2c3e50;
+    font-size: 1.1rem;
+    border-bottom: 2px solid #f1f2f6;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
 }
 
-/* RESPONSIVE — chỉnh lại cho mobile */
-@media (max-width: 768px) {
-  .charts-grid {
-    grid-template-columns: 1fr;
-    gap: 35px;            /* Giản cách vẫn giữ thoáng */
-  }
+.main-chart { height: 400px; }
+.pie-wrapper { height: 200px; display: flex; justify-content: center; }
 
-  .chart-box {
-    padding: 25px;
-    min-height: auto;
-  }
-}   
-
-/* ================================================= */
-/* 4. LOADING */
-/* ================================================= */
-
-.loading-stats {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 60vh;
-  color: #555;
-  font-size: 1.2rem;
-  font-weight: 500;
+/* --- Top Products List --- */
+.top-products-list ul {
+    list-style: none;
+    padding: 0;
+    margin-top: 20px;
 }
 
-/* ================================================= */
-/* 5. RESPONSIVE */
-/* ================================================= */
+.top-products-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px dashed #eee;
+    font-size: 0.9rem;
+}
 
-@media (max-width: 768px) {
-  .stats-container { padding: 15px; }
-  .card-item p { font-size: 1.8rem; }
-  .chart-box { padding: 20px; }
-  .chart-title { font-size: 1.1rem; }
-  .charts-grid { grid-template-columns: 1fr; }
+.top-products-list li:last-child { border-bottom: none; }
+
+.rank {
+    background: #f1f2f6;
+    color: #7f8c8d;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 0.8rem;
+    margin-right: 10px;
+}
+
+.top-products-list li:nth-child(1) .rank { background: #f1c40f; color: white; }
+.top-products-list li:nth-child(2) .rank { background: #95a5a6; color: white; }
+.top-products-list li:nth-child(3) .rank { background: #e67e22; color: white; }
+
+.prod-name { flex: 1; font-weight: 500; color: #333; }
+.prod-qty { font-weight: bold; color: #2c3e50; }
+
+.loading-spinner {
+    text-align: center;
+    padding: 50px;
+    font-size: 1.2rem;
+    color: #7f8c8d;
+}
+
+.no-data {
+    text-align: center;
+    color: #999;
+    padding: 30px;
+    font-style: italic;
 }

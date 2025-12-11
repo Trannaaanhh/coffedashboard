@@ -6,7 +6,6 @@ const Order = require("../models/orders.model");
 router.post("/", async (req, res) => {
   try {
     const order = await Order.create(req.body);
-
     res.status(201).json({
       message: "Order created successfully",
       order,
@@ -94,6 +93,7 @@ router.patch("/:id/status", async (req, res) => {
       "Delivering",
       "Delivered",
       "Cancelled",
+      "Completed" // Thêm Completed để tính doanh thu
     ];
 
     if (!validStatuses.includes(status)) {
@@ -114,6 +114,78 @@ router.patch("/:id/status", async (req, res) => {
       message: "Order status updated successfully",
       order,
     });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// =======================================================
+// [MỚI] API THỐNG KÊ DOANH THU (Bắt buộc đặt trên /:id)
+// =======================================================
+router.get("/stats/revenue", async (req, res) => {
+  try {
+    const { type } = req.query; // 'day', 'month', 'year'
+
+    // 1. Chỉ tính đơn đã giao hoặc hoàn thành
+    const matchStage = {
+      $match: {
+        status: { $in: ["Delivered", "Completed"] }
+      }
+    };
+
+    // 2. Định dạng thời gian cho biểu đồ
+    let dateFormat = "%Y-%m-%d"; // Mặc định theo ngày
+    if (type === 'month') dateFormat = "%Y-%m";
+    if (type === 'year') dateFormat = "%Y";
+
+    const stats = await Order.aggregate([
+      matchStage,
+      {
+        $facet: {
+          // Tổng quan: Tổng tiền, tổng đơn
+          "summary": [
+            { $group: { _id: null, totalRevenue: { $sum: "$totalAmount" }, totalOrders: { $sum: 1 } } }
+          ],
+          // Biểu đồ: Doanh thu theo thời gian
+          "chartData": [
+            {
+              $group: {
+                _id: { $dateToString: { format: dateFormat, date: "$orderDate" } },
+                revenue: { $sum: "$totalAmount" },
+                count: { $sum: 1 }
+              }
+            },
+            { $sort: { _id: 1 } }
+          ],
+          // Top sản phẩm bán chạy
+          "topProducts": [
+            { $unwind: "$items" },
+            {
+              $group: {
+                _id: "$items.productName",
+                totalSold: { $sum: "$items.quantity" },
+                revenue: { $sum: { $multiply: ["$items.quantity", "$items.finalUnitPrice"] } }
+              }
+            },
+            { $sort: { totalSold: -1 } },
+            { $limit: 5 }
+          ]
+        }
+      }
+    ]);
+
+    const result = stats[0];
+    const summary = result.summary[0] || { totalRevenue: 0, totalOrders: 0 };
+
+    res.json({
+      summary: {
+        totalRevenue: summary.totalRevenue,
+        totalOrders: summary.totalOrders
+      },
+      chartData: result.chartData,
+      topProducts: result.topProducts
+    });
+
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -147,7 +219,7 @@ router.get("/filter", async (req, res) => {
   }
 });
 
-// --- Lấy đơn theo ID ---
+// --- Lấy đơn theo ID (Luôn để cuối cùng) ---
 router.get("/:id", async (req, res) => {
   try {
     const order = await Order.findById(req.params.id);
