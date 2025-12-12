@@ -9,9 +9,9 @@ const morgan = require("morgan");
 // Models
 const Item = require("./models/products.model");
 
-
-// Routes (orders)
+//Routes (Import các route file)
 const orderRoutes = require("./routes/orders.routes");
+const promotionRoutes = require("./routes/promotions.routes"); // <--- MỚI THÊM
 
 dotenv.config();
 const app = express();
@@ -109,9 +109,9 @@ app.get("/items", async (req, res) => {
 });
 
 // ================================
-// 📦 ROUTES (Orders)
+// 📦 ROUTES
 // ================================
 app.use("/orders", orderRoutes);
-
+app.use("/promotions", promotionRoutes); 
 // Test
 app.get("/testconnection", (req, res) => res.json("OK"));
