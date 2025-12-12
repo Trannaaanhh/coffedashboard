@@ -52,18 +52,21 @@ const PromotionSchema = new mongoose.Schema({
         type: Boolean,
         default: true
     },
-    // For PRODUCT scope
+
+    // PRODUCT SCOPE
     productIds: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "products"
     }],
-    // For CATEGORY scope
+
+    // CATEGORY SCOPE
     categories: [String],
-    // For COMBO scope
+
+    // COMBO SCOPE
     comboItems: [ComboItemSchema]
 });
 
-// Validation: ensure correct fields are present based on scope
+// Validate theo scope
 PromotionSchema.pre("save", function(next) {
     if (this.scope === "PRODUCT" && (!this.productIds || this.productIds.length === 0)) {
         return next(new Error("productIds is required for PRODUCT scope"));
@@ -77,7 +80,6 @@ PromotionSchema.pre("save", function(next) {
     next();
 });
 
-// Method to check if promotion is currently valid
 PromotionSchema.methods.isValid = function() {
     const now = new Date();
     return this.isActive && now >= this.startDate && now <= this.endDate;
